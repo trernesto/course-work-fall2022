@@ -1,5 +1,4 @@
 import numpy as np
-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
 class neural_network():
 	input_layer = np.array([1, 1, 0, 0, 0])
 	number_of_hidden_layers = 2
@@ -7,22 +6,10 @@ class neural_network():
 	output_layer = np.array([0, 0])
 
 	def __init__ (self):
-		#first coefficient - number of i
-		#second - number of output nodes
-		#third - number of nodes that we multiplying with
-		#theta = np.zeros((2, 3, 2))
 		theta = []
 		data  = np.array([0, 1], dtype = object)
-		theta.append(generate_rand_theta(2, 3))
-		theta.append(generate_rand_theta(3, 1))
-		# theta.append(np.array(
-		# 			[[0.1, 0.1],
-		# 			[0.2, 0.2],
-		# 			[0.3, 0.3]]
-		# 			, dtype = object))
-		# theta.append(np.array(
-		# 			[0, 0, 1]
-		# 			, dtype = object))
+		theta.append(generate_rand_theta(3, 2))
+		theta.append(generate_rand_theta(1, 3))
 		feed_forward(data, theta)
 
 #matrix multiplying in np python realized by @ operand
@@ -43,7 +30,7 @@ def feed_forward(data, theta):
 	print(a[len(theta) - 1])
 
 #generate random weights from 0 to 1  
-def generate_rand_theta(width, height):
+def generate_rand_theta(height, width):
 	#123 in this case is a seed of rng
 	array = []
 	rng = np.random.default_rng(123)
