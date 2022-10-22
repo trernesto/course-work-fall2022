@@ -13,7 +13,7 @@ class neural_network():
 		theta.append(generate_rand_theta(3, 3))
 		theta.append(generate_rand_theta(3, 1))
 		#feed_forward(data, theta, bias)
-		backpropagation(data, 0, theta, bias, 0.3)
+		backpropagation(data, 0, theta, bias, 0.3, sizes)
 
 #matrix multiplying in np python realized by @ operand
 #z = theta @ X.transpose()		
@@ -52,15 +52,16 @@ def cost_function(our_value, target_value):
 
 def feed_forward(data, theta, bias):
 	a = []
-	temp = sigmoid(theta[0] @ data.transpose())
-	a.append(temp.transpose())
+	z = []
+	z.append(theta[0] @ data.transpose() + bias[0].flatten())
+	a.append(sigmoid(z[0]))
 	for i in range(1, len(theta)):
-		temp = sigmoid(theta[i] @ a[i - 1])
-		a.append(temp.transpose())
+		z.append(theta[i] @ a[i - 1] + bias[i].flatten())
+		a.append(sigmoid(z[i]))
 	print(a[-1])
 
-def backpropagation(data, y, theta, bias, alpha):
-	#feed forward to compute a
+def backpropagation(data, y, theta, bias, alpha, sizes):
+	#feed forward to compute activasions
 	a = []
 	z = []
 	z.append(theta[0] @ data.transpose() + bias[0].flatten())
@@ -70,7 +71,7 @@ def backpropagation(data, y, theta, bias, alpha):
 		a.append(sigmoid(z[i]))
 	print(a[-1])
 
-	#count the first derivative
+	#count the first derivative and going backwards
 	#dC/dTheta(i) = dC/da(i) * da(i)/dz(i) * dz(i)/dw(i)
 	#dC/da = ((a(i) - y)^2)' = 2(a(i) - y)
 	#da/dz = (sigmoid(z))' = sigmoid(z) * (1 - sigmoid(z))
@@ -78,8 +79,15 @@ def backpropagation(data, y, theta, bias, alpha):
 	#delta = dC/d(bias) = dC/da * da/dz * dz/d(bias)
 	#dz/d(bias) = 1
 	delta = (a[-1] - y) * (sigmoid(z[-1]) * (1 - sigmoid(z[-1])))
-	grad_bias = []
-	grad_theta = []
+	grad_bias = [np.zeros(b.shape) for b in bias]
+	grad_theta = [np.zeros(t.shape) for t in theta]
+	grad_bias[-1] = delta
+	grad_theta[-1] = delta @ a[-2].reshape(1, a[-2].size)
+	for i in range(2, len(sizes)):
+		dz = sigmoid(z[-i]) * (1 - sigmoid(z[-i]))
+		delta = (theta[-i + 1].transpose() @ delta) * dz
+		grad_bias[-i] = delta
+		grad_theta[-i] = delta.reshape(delta.size, 1) @ a[-i - 1].reshape(1, a[-i - 1].size)
 
 def train(data, y, theta):
 	print("123")
