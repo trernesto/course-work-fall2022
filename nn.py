@@ -8,12 +8,24 @@ class neural_network():
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
-		data  = np.array([0, 1], dtype = object)
-		theta.append(generate_rand_theta(2, 3))
-		theta.append(generate_rand_theta(3, 3))
-		theta.append(generate_rand_theta(3, 1))
-		#feed_forward(data, theta, bias)
-		backpropagation(data, 0, theta, bias, 0.3, sizes)
+		#DATA CREATION
+		data  = np.array([
+			[0, 0],
+			[0, 1],
+			[1, 0],
+			[1, 1]], dtype = object)
+		y = np.array([[0], [1], [1], [0]], dtype = object)
+		theta.append(generate_rand_theta(2, size_of_hidden_layer))
+		for i in range(number_of_hidden_layers - 1):
+			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
+		theta.append(generate_rand_theta(size_of_hidden_layer, 1))
+		print(theta)
+		#TRAINING
+		bias, theta = train(data, y, theta, bias, sizes, 1.2, 1000)
+		a = []
+		for i in range(len(data)):
+			a.append(feed_forward(data[i], theta, bias))
+		print(a)
 
 #matrix multiplying in np python realized by @ operand
 #z = theta @ X.transpose()		
@@ -39,16 +51,11 @@ def generate_rand_bias(sizes):
 #width is a number of input neurons, 
 #height is a number of output neurons  
 def generate_rand_theta(width, height):
-	#123 in this case is a seed of rng
-	array = []
-	rng = np.random.default_rng(123)
-	for i in range(width * height):
-		array.append(rng.random())
-	return np.array(array).reshape(height, width)
+	return np.random.randn(height, width)
 
 def cost_function(our_value, target_value):
 	cost = np.square(our_value - target_value)
-	return np.sum(cost)/len(cost)
+	return np.sum(cost)/len(target_value)
 
 def feed_forward(data, theta, bias):
 	a = []
@@ -58,18 +65,17 @@ def feed_forward(data, theta, bias):
 	for i in range(1, len(theta)):
 		z.append(theta[i] @ a[i - 1] + bias[i].flatten())
 		a.append(sigmoid(z[i]))
-	print(a[-1])
+	return a[-1]
 
-def backpropagation(data, y, theta, bias, alpha, sizes):
-	#feed forward to compute activasions
-	a = []
+def backpropagation(data, y, theta, bias, sizes):
+	#feed forward to compute activations
+	a = [data]
 	z = []
 	z.append(theta[0] @ data.transpose() + bias[0].flatten())
 	a.append(sigmoid(z[0]))
 	for i in range(1, len(theta)):
-		z.append(theta[i] @ a[i - 1] + bias[i].flatten())
+		z.append(theta[i] @ a[i] + bias[i].flatten())
 		a.append(sigmoid(z[i]))
-	print(a[-1])
 
 	#count the first derivative and going backwards
 	#dC/dTheta(i) = dC/da(i) * da(i)/dz(i) * dz(i)/dw(i)
@@ -83,11 +89,24 @@ def backpropagation(data, y, theta, bias, alpha, sizes):
 	grad_theta = [np.zeros(t.shape) for t in theta]
 	grad_bias[-1] = delta
 	grad_theta[-1] = delta @ a[-2].reshape(1, a[-2].size)
-	for i in range(2, len(sizes)):
+	for i in range(2, len(sizes) + 1):
 		dz = sigmoid(z[-i]) * (1 - sigmoid(z[-i]))
 		delta = (theta[-i + 1].transpose() @ delta) * dz
 		grad_bias[-i] = delta
 		grad_theta[-i] = delta.reshape(delta.size, 1) @ a[-i - 1].reshape(1, a[-i - 1].size)
+	return(grad_bias, grad_theta)
 
-def train(data, y, theta):
-	print("123")
+def train(data, y, theta, bias, sizes, alpha = 0.03, epoch = 300):
+	for epo in range(epoch):
+		loss = []
+		for i in range(len(data)):
+			nn_value = feed_forward(data[i], theta, bias)
+			loss.append(cost_function(nn_value, y[i]))
+			grad_bias, grad_theta = backpropagation(data[i], y[i], theta, bias, sizes)
+			for j in range(len(bias)):
+				bias[j] = bias[j] - alpha * grad_bias[j].reshape(grad_bias[j].size, 1)
+			for j in range(len(theta)):
+				theta[j] = theta[j] - alpha * grad_theta[j]
+		accuracy = 1 - sum(loss)/len(data)
+		print("epoch: ", epo+1, "    acc: ", accuracy)
+	return (bias, theta)
