@@ -5,26 +5,43 @@ class neural_network():
 	input_layer = np.array([1, 1, 0, 0, 0])
 
 	def __init__ (self):
+		#COMPONENT CREATION BLOCK
 		number_of_hidden_layers = 2
-		size_of_hidden_layer = 6
+		size_of_hidden_layer = 3
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
-		#DATA CREATION
 		components = component()
 		data, y = components.generateXOR()
 		theta.append(generate_rand_theta(2, size_of_hidden_layer))
 		for i in range(number_of_hidden_layers - 1):
 			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
 		theta.append(generate_rand_theta(size_of_hidden_layer, 1))
+
+		self.sizes = sizes
+		self.data = data
+		self.y = y
+		self.bias = bias
+		self.theta = theta
 		#TRAINING
-		bias, theta = train(data, y, theta, bias, sizes, 1.3, 2000)
+		self.bias, self.theta = self._250_epoch()
 		a = []
 		for i in range(len(data)):
-			a.append(feed_forward(data[i], theta, bias))
+			a.append(feed_forward(data[i], self.theta, self.bias))
 			print("our value: ", a[i], " target value: ", y[i], 
 				" difference: ", a[i] - y[i])
 		#print(a)
+
+	def _250_epoch(self):
+		sizes = self.sizes
+		data = self.data
+		y = self.y
+		bias = self.bias
+		theta = self.theta
+		bias, theta = train(data, y, theta, 
+			bias, sizes, 1.3, 250)
+		return bias, theta
+
 
 #matrix multiplying in np python realized by @ operand
 #z = theta @ X.transpose()		
