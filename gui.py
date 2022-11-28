@@ -25,10 +25,14 @@ class window(QWidget):
       font = QFont()
       font.setFamily("Arial")
       font.setPointSize(16)
-      if (self.modified):
-         self.nn_draw(painter, 100, -125)
+      self.nn_draw(painter, 100, -125)
 
    def unitUI(self):
+      self.label = QLabel()
+      self.label.setText("1234")
+      self.label.move(100, 500)
+      self.label.setStyleSheet("color: white")
+
       button = QPushButton("start nn", self)
       button.move(50, 0)
       button.resize(150,100)
@@ -41,8 +45,13 @@ class window(QWidget):
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked2)
 
+      button = QPushButton("restart", self)
+      button.move(50, 200)
+      button.resize(150,100)
+      button.setStyleSheet("background-color: white")
+      button.clicked.connect(self.buttonClicked3)
+
    def buttonClicked1(self):
-      self.modified = True
       t = Thread(target=self.doCalculations)
       t.start()
 
@@ -55,7 +64,14 @@ class window(QWidget):
          time.sleep(1)
 
    def buttonClicked2(self):
-      self.nn.print_result()
+      self.label.setText(self.nn.print_result())
+      print(self.nn.print_result())
+
+   def buttonClicked3(self):
+      self.nn = neural_network()
+      self.data = self.nn.data
+      self.a = self.nn.a
+      self.update()
 
    def nn_draw(self, painter, start_width = 0, start_height = 0):
       sw = start_width
@@ -65,7 +81,7 @@ class window(QWidget):
       sw += 200
       for array in data:
          sh += 150
-         self.node_draw(painter, 1., sw, sh)
+         self.node_draw(painter, 0., sw, sh)
 
       for column in a:
          sh = start_height
@@ -76,7 +92,7 @@ class window(QWidget):
 
    def node_draw(self, painter, element, start_width, start_height):
       painter.setPen(QPen(Qt.black,  4, Qt.SolidLine))
-      color = QColor(255, 255, 255, (int)(element*255))
+      color = QColor(255, 255, 255, (int)((1 - element)*255))
       painter.setBrush(QBrush(color, Qt.SolidPattern))
       painter.drawEllipse(start_width, start_height, 100, 100)
       #Draw numbers in nodes 

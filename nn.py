@@ -29,10 +29,18 @@ class neural_network():
 #TRAINING
 	def print_result(self):
 		a = []
+		result = ''
 		for i in range(len(self.data)):
 			a.append(feed_forward(self.data[i], self.theta, self.bias))
-			print("our value: ", a[i][-1], " target value: ", self.y[i], 
+			tup = ("our value: ", a[i][-1], " target value: ", self.y[i], 
 				" difference: ", a[i][-1] - self.y[i])
+			for item in tup:
+				if (type(item) is not str):
+					result = result + np.array_str(item)
+				else:
+					result = result + item
+			result = result + '\n'
+		return result
 
 	def _250_epoch(self):
 		sizes = self.sizes
