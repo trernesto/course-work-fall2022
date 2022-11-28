@@ -19,6 +19,8 @@ class window(QWidget):
       self.data = self.nn.data
       self.a = self.nn.a
       self.text = ""
+      self.clicked_x = ""
+      self.clicked_y = ""
       
    #painter creating
    def paintEvent(self, event):
@@ -36,6 +38,11 @@ class window(QWidget):
       for i in range((int)(len(self.text) / 3)):
          painter.drawText(sw, sh, str(self.text[3*i:3*i+3]))
          sh += 25
+
+      painter.setFont(QFont("Arial", 24))
+      painter.setPen(QPen(Qt.white,  4, Qt.SolidLine))
+      painter.drawText(100, 700, self.clicked_x)
+      painter.drawText(100, 800, self.clicked_y)
 
    def unitUI(self):
       button = QPushButton("start nn", self)
@@ -126,6 +133,37 @@ class window(QWidget):
                   painter.setPen(QPen(Qt.green, element, Qt.SolidLine))
                painter.drawLine(sw + 100, sh + 50, sw_e, sh_e + 50)
                sh += 150
+
+   def getPos(self, x, y):
+      pos_x = x - 300
+      pos_y = y - 25
+      if (pos_x % 200 <= 100 and pos_y  % 150 <= 100):
+         return(int(pos_x / 200), int(pos_y / 150))
+      return(-1, -1)
+
+   def mousePressEvent(self, event):
+      x = event.x()
+      y = event.y()
+      #number of activation element 
+      x, y = self.getPos(x, y)
+      sw = 100
+      sh = 500
+      self.clicked_x = "left weights: "
+      self.clicked_y = "right weights: "
+      try:
+         if (x > 0):
+            for i in range(len(self.nn.theta[x - 1][y])):
+               self.clicked_x += str(round(self.nn.theta[x - 1][y][i], 3))
+               self.clicked_x += " "
+         if (x < self.nn.size_of_network_w - 1):
+            for element in self.nn.theta[x]:
+               self.clicked_y += str(round(element[y],3))
+               self.clicked_y += " "
+      except:
+         print("ERROR")
+         print("x: ", x)
+         print("y: ", y)
+      self.update()
 
 def create_window():
    app = QApplication(sys.argv)
