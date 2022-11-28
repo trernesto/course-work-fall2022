@@ -1,15 +1,14 @@
 import numpy as np
 from data import component
-from PyQt5.QtCore import QObject
 
-class neural_network(QObject):
+class neural_network():
 	input_layer = np.array([1, 1, 0, 0, 0])
 
 	def __init__ (self):
 		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
-		number_of_hidden_layers = 2
-		size_of_hidden_layer = 3
+		number_of_hidden_layers = 4
+		size_of_hidden_layer = 6
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
@@ -25,14 +24,15 @@ class neural_network(QObject):
 		self.y = y
 		self.bias = bias
 		self.theta = theta
+		self.a = feed_forward(self.data[i], self.theta, self.bias)
 
 #TRAINING
 	def print_result(self):
 		a = []
 		for i in range(len(self.data)):
 			a.append(feed_forward(self.data[i], self.theta, self.bias))
-			print("our value: ", a[i], " target value: ", self.y[i], 
-				" difference: ", a[i] - self.y[i])
+			print("our value: ", a[i][-1], " target value: ", self.y[i], 
+				" difference: ", a[i][-1] - self.y[i])
 
 	def _250_epoch(self):
 		sizes = self.sizes
@@ -47,7 +47,7 @@ class neural_network(QObject):
 		for epo in range(epoch + 1):
 			loss = []
 			for i in range(len(data)):
-				nn_value = feed_forward(data[i], theta, bias)
+				nn_value = feed_forward(data[i], theta, bias)[-1]
 				loss.append(cost_function(nn_value, y[i]))
 				grad_bias, grad_theta = backpropagation(data[i], y[i], theta, bias, sizes)
 				for j in range(len(bias)):
@@ -56,6 +56,7 @@ class neural_network(QObject):
 					theta[j] = theta[j] - alpha * grad_theta[j]
 			accuracy = 1 - sum(loss)/len(data)
 			if (self.epochCounter % 250 == 0):
+				self.a = feed_forward(data[i], theta, bias)
 				print("epoch: ", self.epochCounter, "    acc: ", accuracy)
 			self.epochCounter += 1
 		return (bias, theta)
@@ -97,7 +98,7 @@ def feed_forward(data, theta, bias):
 	for i in range(1, len(theta)):
 		z.append(theta[i] @ a[i - 1] + bias[i].flatten())
 		a.append(sigmoid(z[i]))
-	return a[-1]
+	return a
 
 def backpropagation(data, y, theta, bias, sizes):
 	#feed forward to compute activations
