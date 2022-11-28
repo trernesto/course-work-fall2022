@@ -86,9 +86,9 @@ class window(QWidget):
       data = self.data
       a = self.a
       sw += 200
-      for array in data:
+      for element in data[0]:
          sh += 150
-         self.node_draw(painter, 0., sw, sh)
+         self.node_draw(painter, element, sw, sh)
 
       for column in a:
          sh = start_height
@@ -96,6 +96,7 @@ class window(QWidget):
          for element in column:
             sh += 150
             self.node_draw(painter, element, sw, sh)
+      self.neuron_draw(painter)
 
    def node_draw(self, painter, element, start_width, start_height):
       painter.setPen(QPen(Qt.black,  4, Qt.SolidLine))
@@ -104,11 +105,24 @@ class window(QWidget):
       painter.drawEllipse(start_width, start_height, 100, 100)
       #Draw numbers in nodes 
       painter.setFont(QFont("Arial", 30))
-      painter.drawText(start_width + 13, start_height + 65, str(element)[0:4])
+      #painter.drawText(start_width + 13, start_height + 65, str(element)[0:4])
 
-   def neuron_draw(self, painter, start_width, start_height):
-      print(1)
-
+   def neuron_draw(self, painter):
+      sh = 25
+      sw = 300 - 200
+      sh_e = 25 - 150
+      sw_e = 500 - 200
+      for column in self.nn.theta:
+         sw += 200
+         sw_e += 200
+         sh_e = 25 - 150
+         for row in column:
+            sh = 25
+            sh_e += 150
+            for element in row:
+               painter.setPen(QPen(Qt.white, (element + 5) / 3, Qt.SolidLine))
+               painter.drawLine(sw + 100, sh + 50, sw_e, sh_e + 50)
+               sh += 150
 
 def create_window():
    app = QApplication(sys.argv)

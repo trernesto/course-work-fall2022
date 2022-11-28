@@ -8,7 +8,7 @@ class neural_network():
 		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
 		number_of_hidden_layers = 4
-		size_of_hidden_layer = 6
+		size_of_hidden_layer = 5
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
