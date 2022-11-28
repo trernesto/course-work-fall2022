@@ -1,10 +1,12 @@
 import numpy as np
 from data import component
+from PyQt5.QtCore import QObject
 
-class neural_network():
+class neural_network(QObject):
 	input_layer = np.array([1, 1, 0, 0, 0])
 
 	def __init__ (self):
+		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
 		number_of_hidden_layers = 2
 		size_of_hidden_layer = 3
@@ -23,14 +25,14 @@ class neural_network():
 		self.y = y
 		self.bias = bias
 		self.theta = theta
-		#TRAINING
-		self.bias, self.theta = self._250_epoch()
+
+#TRAINING
+	def print_result(self):
 		a = []
-		for i in range(len(data)):
-			a.append(feed_forward(data[i], self.theta, self.bias))
-			print("our value: ", a[i], " target value: ", y[i], 
-				" difference: ", a[i] - y[i])
-		#print(a)
+		for i in range(len(self.data)):
+			a.append(feed_forward(self.data[i], self.theta, self.bias))
+			print("our value: ", a[i], " target value: ", self.y[i], 
+				" difference: ", a[i] - self.y[i])
 
 	def _250_epoch(self):
 		sizes = self.sizes
@@ -38,11 +40,25 @@ class neural_network():
 		y = self.y
 		bias = self.bias
 		theta = self.theta
-		bias, theta = train(data, y, theta, 
+		self.bias, self.theta = self.train(data, y, theta, 
 			bias, sizes, 1.3, 250)
-		return bias, theta
 
-
+	def train(self, data, y, theta, bias, sizes, alpha = 0.03, epoch = 300):
+		for epo in range(epoch + 1):
+			loss = []
+			for i in range(len(data)):
+				nn_value = feed_forward(data[i], theta, bias)
+				loss.append(cost_function(nn_value, y[i]))
+				grad_bias, grad_theta = backpropagation(data[i], y[i], theta, bias, sizes)
+				for j in range(len(bias)):
+					bias[j] = bias[j] - alpha * grad_bias[j].reshape(grad_bias[j].size, 1)
+				for j in range(len(theta)):
+					theta[j] = theta[j] - alpha * grad_theta[j]
+			accuracy = 1 - sum(loss)/len(data)
+			if (self.epochCounter % 250 == 0):
+				print("epoch: ", self.epochCounter, "    acc: ", accuracy)
+			self.epochCounter += 1
+		return (bias, theta)
 #matrix multiplying in np python realized by @ operand
 #z = theta @ X.transpose()		
 def sigmoid(z):
@@ -111,19 +127,3 @@ def backpropagation(data, y, theta, bias, sizes):
 		grad_bias[-i] = delta
 		grad_theta[-i] = delta.reshape(delta.size, 1) @ a[-i - 1].reshape(1, a[-i - 1].size)
 	return(grad_bias, grad_theta)
-
-def train(data, y, theta, bias, sizes, alpha = 0.03, epoch = 300):
-	for epo in range(epoch + 1):
-		loss = []
-		for i in range(len(data)):
-			nn_value = feed_forward(data[i], theta, bias)
-			loss.append(cost_function(nn_value, y[i]))
-			grad_bias, grad_theta = backpropagation(data[i], y[i], theta, bias, sizes)
-			for j in range(len(bias)):
-				bias[j] = bias[j] - alpha * grad_bias[j].reshape(grad_bias[j].size, 1)
-			for j in range(len(theta)):
-				theta[j] = theta[j] - alpha * grad_theta[j]
-		accuracy = 1 - sum(loss)/len(data)
-		if (epo % 500 == 0):
-			print("epoch: ", epo, "    acc: ", accuracy)
-	return (bias, theta)

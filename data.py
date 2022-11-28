@@ -2,7 +2,7 @@ import numpy as np
 
 class component():
 	def __init__(self):
-		print("created component class")
+		print("")
 
 	def generateXOR(self):
 		#alpha = 1.3 epoch = 1000
