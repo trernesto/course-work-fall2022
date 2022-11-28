@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 import numpy as np
 from nn import neural_network
@@ -17,6 +18,7 @@ class window(QWidget):
       self.nn = neural_network()
       self.data = self.nn.data
       self.a = self.nn.a
+      self.text = ""
       
    #painter creating
    def paintEvent(self, event):
@@ -27,12 +29,15 @@ class window(QWidget):
       font.setPointSize(16)
       self.nn_draw(painter, 100, -125)
 
-   def unitUI(self):
-      self.label = QLabel()
-      self.label.setText("1234")
-      self.label.move(100, 500)
-      self.label.setStyleSheet("color: white")
+      painter.setFont(QFont("Arial", 13))
+      painter.setPen(Qt.white);
+      sw = 1250
+      sh = 500
+      for i in range((int)(len(self.text) / 3)):
+         painter.drawText(sw, sh, str(self.text[3*i:3*i+3]))
+         sh += 25
 
+   def unitUI(self):
       button = QPushButton("start nn", self)
       button.move(50, 0)
       button.resize(150,100)
@@ -56,7 +61,7 @@ class window(QWidget):
       t.start()
 
    def doCalculations(self):
-      for i in range(5):
+      for i in range(4):
          self.nn._250_epoch()
          self.data = self.nn.data
          self.a = self.nn.a
@@ -64,8 +69,10 @@ class window(QWidget):
          time.sleep(1)
 
    def buttonClicked2(self):
-      self.label.setText(self.nn.print_result())
-      print(self.nn.print_result())
+      self.text = self.nn.print_result()
+      for i in range((int)(len(self.text) / 3)):
+         print(self.text[3*i:3*i+3])
+      self.update()
 
    def buttonClicked3(self):
       self.nn = neural_network()
