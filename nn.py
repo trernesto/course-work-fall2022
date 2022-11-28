@@ -1,31 +1,30 @@
 import numpy as np
+from data import component
+
 class neural_network():
 	input_layer = np.array([1, 1, 0, 0, 0])
 
 	def __init__ (self):
 		number_of_hidden_layers = 2
-		size_of_hidden_layer = 3
+		size_of_hidden_layer = 6
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
 		#DATA CREATION
-		data  = np.array([
-			[0, 0],
-			[0, 1],
-			[1, 0],
-			[1, 1]], dtype = object)
-		y = np.array([[0], [1], [1], [0]], dtype = object)
+		components = component()
+		data, y = components.generateXOR()
 		theta.append(generate_rand_theta(2, size_of_hidden_layer))
 		for i in range(number_of_hidden_layers - 1):
 			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
 		theta.append(generate_rand_theta(size_of_hidden_layer, 1))
-		print(theta)
 		#TRAINING
-		bias, theta = train(data, y, theta, bias, sizes, 1.2, 1000)
+		bias, theta = train(data, y, theta, bias, sizes, 1.3, 2000)
 		a = []
 		for i in range(len(data)):
 			a.append(feed_forward(data[i], theta, bias))
-		print(a)
+			print("our value: ", a[i], " target value: ", y[i], 
+				" difference: ", a[i] - y[i])
+		#print(a)
 
 #matrix multiplying in np python realized by @ operand
 #z = theta @ X.transpose()		
@@ -97,7 +96,7 @@ def backpropagation(data, y, theta, bias, sizes):
 	return(grad_bias, grad_theta)
 
 def train(data, y, theta, bias, sizes, alpha = 0.03, epoch = 300):
-	for epo in range(epoch):
+	for epo in range(epoch + 1):
 		loss = []
 		for i in range(len(data)):
 			nn_value = feed_forward(data[i], theta, bias)
@@ -108,5 +107,6 @@ def train(data, y, theta, bias, sizes, alpha = 0.03, epoch = 300):
 			for j in range(len(theta)):
 				theta[j] = theta[j] - alpha * grad_theta[j]
 		accuracy = 1 - sum(loss)/len(data)
-		print("epoch: ", epo+1, "    acc: ", accuracy)
+		if (epo % 500 == 0):
+			print("epoch: ", epo, "    acc: ", accuracy)
 	return (bias, theta)

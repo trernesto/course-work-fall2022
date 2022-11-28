@@ -4,8 +4,8 @@ import numpy as np
 
 
 def Main():
-	#create_window()
-	nn = neural_network()
+	create_window()
+	#nn = neural_network()
 
 if __name__ == '__main__':
 	Main()

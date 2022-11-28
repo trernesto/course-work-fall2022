@@ -3,11 +3,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import numpy as np
+from nn import neural_network
+
 
 class window(QWidget):
    def __init__(self, parent = None, width = 1920, height = 1080):
       super(window, self).__init__(parent)
+      self.unitUI()
       self.resize(width, height)
+      
    #painter creating
    def paintEvent(self, event):
       painter = QPainter(self)
@@ -16,10 +20,20 @@ class window(QWidget):
       font.setFamily("Arial")
       font.setPointSize(16)
 
-      data = np.array([[1. ,2. ,3.], [4., 6.]], dtype = object)
-      nn_draw(painter, data, 200, 200)
+      data  = np.array([
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1]], dtype = object)
+      nn_draw(painter, data, 100, -125)
 
+   def unitUI(self):
+      button = QPushButton("start nn", self)
+      button.move(100, 0)
+      button.clicked.connect(self.buttonClicked)
 
+   def buttonClicked(self):
+      nn = neural_network()
 
 def create_window():
    app = QApplication(sys.argv)
