@@ -105,7 +105,7 @@ class window(QWidget):
       painter.drawEllipse(start_width, start_height, 100, 100)
       #Draw numbers in nodes 
       painter.setFont(QFont("Arial", 30))
-      #painter.drawText(start_width + 13, start_height + 65, str(element)[0:4])
+      painter.drawText(start_width + 13, start_height + 65, str(1 - element)[0:4])
 
    def neuron_draw(self, painter):
       sh = 25
@@ -120,7 +120,10 @@ class window(QWidget):
             sh = 25
             sh_e += 150
             for element in row:
-               painter.setPen(QPen(Qt.white, (element + 5) / 3, Qt.SolidLine))
+               if (element < 0):
+                  painter.setPen(QPen(Qt.red, abs(element), Qt.SolidLine))
+               else:
+                  painter.setPen(QPen(Qt.green, element, Qt.SolidLine))
                painter.drawLine(sw + 100, sh + 50, sw_e, sh_e + 50)
                sh += 150
 
