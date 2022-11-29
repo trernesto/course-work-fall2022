@@ -10,9 +10,9 @@ from threading import *
 
 class window(QWidget):
    def __init__(self, parent = None, width = 1920, height = 1080):
-      self.data_number = 1
+      self.data_number = 0
       super(window, self).__init__(parent)
-      self.setStyleSheet("background-color : gray;")
+      self.setStyleSheet("background-color : darkgray;")
       self.unitUI()
       self.resize(width, height)
       self.nn = neural_network()
@@ -34,7 +34,7 @@ class window(QWidget):
       painter.setFont(QFont("Arial", 13))
       painter.setPen(Qt.white);
       sw = 1250
-      sh = 500
+      sh = 850
       for i in range((int)(len(self.text) / 3)):
          painter.drawText(sw, sh, str(self.text[3*i:3*i+3]))
          sh += 25
@@ -74,6 +74,7 @@ class window(QWidget):
       t.start()
 
    def doCalculations(self):
+      self.text = ""
       for i in range(4):
          self.nn._250_epoch()
          self.data = self.nn.data[self.data_number]

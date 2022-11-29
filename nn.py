@@ -7,14 +7,14 @@ class neural_network():
 	def __init__ (self):
 		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
-		number_of_hidden_layers = 2
-		size_of_hidden_layer = 3
+		number_of_hidden_layers = 3
+		size_of_hidden_layer = 4
 		self.size_of_network_w = number_of_hidden_layers + 2
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
 		components = component()
-		data, y = components.generateXOR()
+		data, y = components.generate_round()
 		theta.append(generate_rand_theta(2, size_of_hidden_layer))
 		for i in range(number_of_hidden_layers - 1):
 			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
