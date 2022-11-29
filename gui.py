@@ -11,6 +11,7 @@ from threading import *
 class window(QWidget):
    def __init__(self, parent = None, width = 1920, height = 1080):
       self.data_number = 0
+      self.data_number_test = 0
       super(window, self).__init__(parent)
       self.setStyleSheet("background-color : darkgray;")
       self.unitUI()
@@ -31,13 +32,11 @@ class window(QWidget):
       font.setPointSize(16)
       self.nn_draw(painter, 100, -125)
 
-      painter.setFont(QFont("Arial", 13))
-      painter.setPen(Qt.white);
-      sw = 1250
-      sh = 850
-      for i in range((int)(len(self.text) / 3)):
-         painter.drawText(sw, sh, str(self.text[3*i:3*i+3]))
-         sh += 25
+      painter.setFont(QFont("Arial", 35))
+      painter.setPen(Qt.black);
+      sw = 50
+      sh = 800
+      painter.drawText(sw, sh, "Accuracy: " + self.text)
 
       painter.setFont(QFont("Arial", 24))
       painter.setPen(QPen(Qt.white,  4, Qt.SolidLine))
@@ -69,6 +68,18 @@ class window(QWidget):
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked4)
 
+      button = QPushButton("testSubj", self)
+      button.move(50, 400)
+      button.resize(150,75)
+      button.setStyleSheet("background-color: white")
+      button.clicked.connect(self.buttonClicked5)
+
+      button = QPushButton("print Accuracy on test", self)
+      button.move(50, 500)
+      button.resize(150,75)
+      button.setStyleSheet("background-color: white")
+      button.clicked.connect(self.buttonClicked6)
+
    def buttonClicked1(self):
       t = Thread(target=self.doCalculations)
       t.start()
@@ -83,9 +94,7 @@ class window(QWidget):
          time.sleep(1)
 
    def buttonClicked2(self):
-      self.text = self.nn.print_result()
-      for i in range((int)(len(self.text) / 3)):
-         print(self.text[3*i:3*i+3])
+      self.text = str(round(self.nn.accuracy, 5))
       self.update()
 
    def buttonClicked3(self):
@@ -101,11 +110,35 @@ class window(QWidget):
       self.a = self.nn.getActiv(self.data)
       self.update()
 
+   def buttonClicked5(self):
+      number_of_elements_in_data = self.nn.testdata.shape[0]
+      self.data_number_test = (self.data_number_test + 1) % number_of_elements_in_data
+      self.data = self.nn.testdata[self.data_number_test]
+      self.a = self.nn.getActiv(self.data)
+      print(self.a)
+      self.update()
+
+   def buttonClicked6(self):
+      loss = []
+      y = self.nn.testy
+      data = self.nn.testdata
+      theta = self.nn.theta
+      bias = self.nn.bias
+      i = 0
+      for element in data:
+         nn_value = self.nn.getActiv(element)[-1]
+         loss.append(self.nn.cf(nn_value, y[i]))
+         i += 1
+      accuracy = 1 - sum(loss)/len(data)
+      print(accuracy)
+
+
    def nn_draw(self, painter, start_width = 0, start_height = 0):
       sw = start_width
       sh = start_height
       data = self.data
       a = self.a
+      self.neuron_draw(painter)
       sw += 200
       for element in data:
          sh += 150
@@ -117,7 +150,6 @@ class window(QWidget):
          for element in column:
             sh += 150
             self.node_draw(painter, element, sw, sh)
-      self.neuron_draw(painter)
 
    def node_draw(self, painter, element, start_width, start_height):
       painter.setPen(QPen(Qt.black,  4, Qt.SolidLine))
@@ -126,7 +158,7 @@ class window(QWidget):
       painter.drawEllipse(start_width, start_height, 100, 100)
       #Draw numbers in nodes 
       painter.setFont(QFont("Arial", 30))
-      painter.drawText(start_width + 13, start_height + 65, str(element)[0:4])
+      painter.drawText(start_width + 13, start_height + 65, str(round(element,2)))
 
    def neuron_draw(self, painter):
       sh = 25

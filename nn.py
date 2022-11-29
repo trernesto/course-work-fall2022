@@ -8,7 +8,7 @@ class neural_network():
 		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
 		number_of_hidden_layers = 3
-		size_of_hidden_layer = 4
+		size_of_hidden_layer = 3
 		self.size_of_network_w = number_of_hidden_layers + 2
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
@@ -19,7 +19,8 @@ class neural_network():
 		for i in range(number_of_hidden_layers - 1):
 			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
 		theta.append(generate_rand_theta(size_of_hidden_layer, 1))
-
+		self.testdata, self.testy = components.test_round()
+		self.accuracy = 0
 		self.sizes = sizes
 		self.data = data
 		self.y = y
@@ -66,6 +67,7 @@ class neural_network():
 				for j in range(len(theta)):
 					theta[j] = theta[j] - alpha * grad_theta[j]
 			accuracy = 1 - sum(loss)/len(data)
+			self.accuracy = accuracy
 			if (self.epochCounter % 250 == 0):
 				self.a = feed_forward(data[0], theta, bias)
 				print("epoch: ", self.epochCounter, "    acc: ", accuracy)
@@ -74,6 +76,9 @@ class neural_network():
 
 	def getActiv(self, data):
 		return feed_forward(data, self.theta, self.bias)
+
+	def cf(self, ov, tv):
+		return cost_function(ov, tv)
 
 #matrix multiplying in np python realized by @ operand
 #z = theta @ X.transpose()		

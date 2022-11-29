@@ -24,12 +24,27 @@ class component():
 		return (data, y)		
 
 	def generate_round(self):
-		data = np.empty((50, 2))
-		y = np.empty((50, 1))
+		num = 200
+		data = np.empty((num, 2))
+		y = np.empty((num, 1))
 		#generate 2 coordinates and y = 0 or 1
-		for i in range(50):
+		for i in range(num):
 			data[i] = 12 * np.random.rand(2) - 6
-		for i in range(50):
+		for i in range(num):
+			if (data[i][0] * data[i][0] + data[i][1] * data[i][1] <= 9):
+				y[i] = 1
+			else:
+				y[i] = 0
+		return (data, y)
+
+	def test_round(self):
+		num = 200
+		data = np.empty((num, 2))
+		y = np.empty((num, 1))
+		#generate 2 coordinates and y = 0 or 1
+		for i in range(num):
+			data[i] = 12 * np.random.rand(2) - 6
+		for i in range(num):
 			if (data[i][0] * data[i][0] + data[i][1] * data[i][1] <= 9):
 				y[i] = 1
 			else:
