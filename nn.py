@@ -2,20 +2,29 @@ import numpy as np
 from data import component
 
 class neural_network():
-	input_layer = np.array([1, 1, 0, 0, 0])
 
 	def __init__ (self):
+		#x y x^2 y^2 xy
+		self.input_controller = np.array([1, 1, 0, 0, 0])
 		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
 		number_of_hidden_layers = 3
-		size_of_hidden_layer = 3
+		size_of_hidden_layer = 5
 		self.size_of_network_w = number_of_hidden_layers + 2
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
 		components = component()
 		data, y = components.generate_round()
-		theta.append(generate_rand_theta(2, size_of_hidden_layer))
+		self.input_layer = np.empty((data.shape[0], 5))
+		for i in range(data.shape[0]):
+			self.input_layer[i] = np.array([data[i][0], #x
+				data[i][1], 							#y
+				data[i][0] * data[i][0], 				#x*x
+				data[i][1] * data[i][1], 				#y*y
+				data[i][0] * data[i][1]])				#x*y
+		data = self.input_controller * self.input_layer
+		theta.append(generate_rand_theta(data.shape[1], size_of_hidden_layer))
 		for i in range(number_of_hidden_layers - 1):
 			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
 		theta.append(generate_rand_theta(size_of_hidden_layer, 1))
@@ -27,6 +36,8 @@ class neural_network():
 		self.bias = bias
 		self.theta = theta
 		self.a = feed_forward(self.data[0], self.theta, self.bias)
+		self.epoch_points = []
+		self.acc_points = []
 
 #TRAINING
 	def print_result(self):
@@ -68,8 +79,9 @@ class neural_network():
 					theta[j] = theta[j] - alpha * grad_theta[j]
 			accuracy = 1 - sum(loss)/len(data)
 			self.accuracy = accuracy
-			if (self.epochCounter % 250 == 0):
-				self.a = feed_forward(data[0], theta, bias)
+			if (self.epochCounter % 50 == 0):
+				self.epoch_points.append(self.epochCounter)
+				self.acc_points.append(self.accuracy)
 				print("epoch: ", self.epochCounter, "    acc: ", accuracy)
 			self.epochCounter += 1
 		return (bias, theta)

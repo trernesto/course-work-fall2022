@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import *
 import numpy as np
 from nn import neural_network
 import time
+import matplotlib.pyplot as plt
 from threading import *
 
 class window(QWidget):
@@ -115,7 +116,6 @@ class window(QWidget):
       self.data_number_test = (self.data_number_test + 1) % number_of_elements_in_data
       self.data = self.nn.testdata[self.data_number_test]
       self.a = self.nn.getActiv(self.data)
-      print(self.a)
       self.update()
 
    def buttonClicked6(self):
@@ -131,6 +131,11 @@ class window(QWidget):
          i += 1
       accuracy = 1 - sum(loss)/len(data)
       print(accuracy)
+      xpoints = np.array(self.nn.epoch_points)
+      ypoints = np.array(self.nn.acc_points)
+
+      plt.plot(xpoints, ypoints)
+      plt.show()
 
 
    def nn_draw(self, painter, start_width = 0, start_height = 0):
