@@ -21,6 +21,7 @@ class window(QWidget):
       self.data = self.nn.data[self.data_number]
       self.a = self.nn.getActiv(self.data)
       self.text = ""
+      self.text_test = ""
       self.clicked_x = ""
       self.clicked_y = ""
       
@@ -38,9 +39,11 @@ class window(QWidget):
       sw = 50
       sh = 800
       painter.drawText(sw, sh, "Accuracy: " + self.text)
+      sh += 40
+      painter.drawText(sw, sh, "Accuracy on test: " + self.text_test)
 
       painter.setFont(QFont("Arial", 24))
-      painter.setPen(QPen(Qt.white,  4, Qt.SolidLine))
+      painter.setPen(QPen(Qt.black,  4, Qt.SolidLine))
       painter.drawText(50, 950, self.clicked_x)
       painter.drawText(50, 1000, self.clicked_y)
 
@@ -51,29 +54,29 @@ class window(QWidget):
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked1)
 
-      button = QPushButton("results", self)
-      button.move(50, 100)
-      button.resize(150,75)
-      button.setStyleSheet("background-color: white")
-      button.clicked.connect(self.buttonClicked2)
-
       button = QPushButton("restart", self)
-      button.move(50, 200)
+      button.move(50, 100)
       button.resize(150,75)
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked3)
 
-      button = QPushButton("next", self)
-      button.move(50, 300)
+      button = QPushButton("next training example", self)
+      button.move(50, 200)
       button.resize(150,75)
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked4)
 
-      button = QPushButton("testSubj", self)
-      button.move(50, 400)
+      button = QPushButton("next test example", self)
+      button.move(50, 300)
       button.resize(150,75)
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked5)
+
+      button = QPushButton("print Accuracy on training", self)
+      button.move(50, 400)
+      button.resize(150,75)
+      button.setStyleSheet("background-color: white")
+      button.clicked.connect(self.buttonClicked2)
 
       button = QPushButton("print Accuracy on test", self)
       button.move(50, 500)
@@ -81,12 +84,19 @@ class window(QWidget):
       button.setStyleSheet("background-color: white")
       button.clicked.connect(self.buttonClicked6)
 
+      button = QPushButton("plot", self)
+      button.move(50, 600)
+      button.resize(150,75)
+      button.setStyleSheet("background-color: white")
+      button.clicked.connect(self.buttonClicked7)
+
    def buttonClicked1(self):
       t = Thread(target=self.doCalculations)
       t.start()
 
    def doCalculations(self):
       self.text = ""
+      self.text_test = ""
       for i in range(4):
          self.nn._250_epoch()
          self.data = self.nn.data[self.data_number]
@@ -130,13 +140,19 @@ class window(QWidget):
          loss.append(self.nn.cf(nn_value, y[i]))
          i += 1
       accuracy = 1 - sum(loss)/len(data)
-      print(accuracy)
+      self.text_test = str(round(accuracy, 5))
+      self.update()
+
+   def buttonClicked7(self):
       xpoints = np.array(self.nn.epoch_points)
-      ypoints = np.array(self.nn.acc_points)
-
-      plt.plot(xpoints, ypoints)
+      ypoints_data = np.array(self.nn.acc_points)
+      ypoints_test = np.array(self.nn.acc_points_test)
+      figure, axis = plt.subplots(1, 2)
+      axis[0].plot(xpoints, ypoints_data)
+      axis[0].set_title("Training")
+      axis[1].plot(xpoints, ypoints_test)
+      axis[1].set_title("Test")
       plt.show()
-
 
    def nn_draw(self, painter, start_width = 0, start_height = 0):
       sw = start_width

@@ -5,17 +5,18 @@ class neural_network():
 
 	def __init__ (self):
 		#x y x^2 y^2 xy
-		self.input_controller = np.array([1, 1, 0, 0, 0])
+		self.input_controller = np.array([1, 1, 1, 1, 1])
 		self.epochCounter = 0
 		#COMPONENT CREATION BLOCK
-		number_of_hidden_layers = 3
-		size_of_hidden_layer = 5
+		number_of_hidden_layers = 2
+		size_of_hidden_layer = 4
 		self.size_of_network_w = number_of_hidden_layers + 2
 		sizes = generate_sizes_of_nn(number_of_hidden_layers, size_of_hidden_layer)
 		theta = []
 		bias = generate_rand_bias(sizes)
 		components = component()
 		data, y = components.generate_round()
+		#GENERATING DATA ARRAY
 		self.input_layer = np.empty((data.shape[0], 5))
 		for i in range(data.shape[0]):
 			self.input_layer[i] = np.array([data[i][0], #x
@@ -24,11 +25,21 @@ class neural_network():
 				data[i][1] * data[i][1], 				#y*y
 				data[i][0] * data[i][1]])				#x*y
 		data = self.input_controller * self.input_layer
+		#GENERATING TEST ARRAY
+		testdata, self.testy = components.test_round()
+		self.input_layer = np.empty((testdata.shape[0], 5))
+		for i in range(testdata.shape[0]):
+			self.input_layer[i] = np.array([testdata[i][0], #x
+				testdata[i][1], 							#y
+				testdata[i][0] * testdata[i][0], 				#x*x
+				testdata[i][1] * testdata[i][1], 				#y*y
+				testdata[i][0] * testdata[i][1]])				#x*y
+		self.testdata = self.input_controller * self.input_layer
+
 		theta.append(generate_rand_theta(data.shape[1], size_of_hidden_layer))
 		for i in range(number_of_hidden_layers - 1):
 			theta.append(generate_rand_theta(size_of_hidden_layer, size_of_hidden_layer))
 		theta.append(generate_rand_theta(size_of_hidden_layer, 1))
-		self.testdata, self.testy = components.test_round()
 		self.accuracy = 0
 		self.sizes = sizes
 		self.data = data
@@ -38,6 +49,7 @@ class neural_network():
 		self.a = feed_forward(self.data[0], self.theta, self.bias)
 		self.epoch_points = []
 		self.acc_points = []
+		self.acc_points_test = []
 
 #TRAINING
 	def print_result(self):
@@ -83,6 +95,13 @@ class neural_network():
 				self.epoch_points.append(self.epochCounter)
 				self.acc_points.append(self.accuracy)
 				print("epoch: ", self.epochCounter, "    acc: ", accuracy)
+				#accuracy on test object
+				loss_test = []
+				for i in range(len(self.testdata)):
+					nn_value = feed_forward(self.testdata[i], theta, bias)[-1]
+					loss_test.append(cost_function(nn_value, self.testy[i]))
+				accuracy = 1 - sum(loss_test)/len(self.testdata)
+				self.acc_points_test.append(accuracy)
 			self.epochCounter += 1
 		return (bias, theta)
 
